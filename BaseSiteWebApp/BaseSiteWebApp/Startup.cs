@@ -33,7 +33,8 @@ namespace BaseSiteWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
+            services.AddMvc(options => options.MaxModelValidationErrors = 50)
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             services.Configure<MyOptions>(_configuration);
