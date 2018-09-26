@@ -1,18 +1,23 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace BaseSiteWebApp.Models
 {
     public partial class NorthwindContext : DbContext
     {
-        public NorthwindContext()
+        private IConfiguration _configuration;
+
+        public NorthwindContext(IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
-        public NorthwindContext(DbContextOptions<NorthwindContext> options)
+        public NorthwindContext(DbContextOptions<NorthwindContext> options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
         }
 
         public virtual DbSet<Categories> Categories { get; set; }
@@ -33,8 +38,7 @@ namespace BaseSiteWebApp.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=Northwind;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("MyConnection"));
             }
         }
 

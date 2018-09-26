@@ -18,10 +18,10 @@ namespace BaseSiteWebApp
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration _configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -33,9 +33,10 @@ namespace BaseSiteWebApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            var connection = "Server=(localdb)\\mssqllocaldb;Database=Northwind;Trusted_Connection=True;";
-            services.AddDbContext<NorthwindContext>(options => options.UseSqlServer(connection));
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
+            services.AddDbContext<NorthwindContext>(options => 
+                options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
+            services.Configure<MyOptions>(_configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

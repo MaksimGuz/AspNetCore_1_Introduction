@@ -6,22 +6,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BaseSiteWebApp.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace BaseSiteWebApp.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly NorthwindContext _context;
+        private readonly MyOptions _options;
 
-        public ProductsController(NorthwindContext context)
+        public ProductsController(NorthwindContext context, IOptions<MyOptions> optionsAccessor)
         {
             _context = context;
+            _options = optionsAccessor.Value;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
-        {
-            var northwindContext = _context.Products.Include(p => p.Category).Include(p => p.Supplier);
+        {            
+            var northwindContext = _context.Products.Include(p => p.Category).Include(p => p.Supplier).AsQueryable(); ;
+            if (_options.MaxProducts > 0)
+                northwindContext = northwindContext.Take(_options.MaxProducts);
             return View(await northwindContext.ToListAsync());
         }
 
