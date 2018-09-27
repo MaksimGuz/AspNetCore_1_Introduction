@@ -12,18 +12,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace BaseSiteWebApp
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         private IConfiguration _configuration { get; }
+        private ILogger<Startup> _logger;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -37,10 +39,11 @@ namespace BaseSiteWebApp
 
             services.AddMvc(options => options.MaxModelValidationErrors = 50)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            Log.Information($"Read configuration. Value for MyConnection: {_configuration.GetConnectionString("MyConnection")}");
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
+            _logger.LogInformation($"GET CONFIGURATION. MyConnection: {_configuration.GetConnectionString("MyConnection")}");
             services.Configure<MyOptions>(_configuration);
+            _logger.LogInformation(@"GET CONFIGURATION. MyOptions: {@options}", _configuration.Get<MyOptions>());            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

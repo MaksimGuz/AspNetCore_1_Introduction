@@ -6,28 +6,21 @@ using System.Threading.Tasks;
 using BaseSiteWebApp.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace BaseSiteWebApp.Controllers
 {
     public class HomeController : Controller
     {
+        private ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
         public IActionResult Index()
         {
             ViewData["Message"] = "Welcome to the web app.";
-            return View();
-        }
-
-        public IActionResult Categories()
-        {
-            ViewData["Message"] = "Show list of categories without images.";
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
             return View();
         }
 
@@ -41,7 +34,7 @@ namespace BaseSiteWebApp.Controllers
         {
             var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
             var error = this.HttpContext.Features.Get<IExceptionHandlerFeature>().Error;
-            Log.Error(error, "RequestId:{requestId}, error: {@error}", requestId, error);
+            _logger.LogError(error, "RequestId:{requestId}, error: {@error}", requestId, error);
             return View(new ErrorViewModel { RequestId = requestId });
         }
     }
