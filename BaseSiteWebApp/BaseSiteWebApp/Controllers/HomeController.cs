@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BaseSiteWebApp.Models;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace BaseSiteWebApp.Controllers
 {
@@ -37,7 +39,10 @@ namespace BaseSiteWebApp.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            var error = this.HttpContext.Features.Get<IExceptionHandlerFeature>().Error;
+            Log.Error(error, "RequestId:{requestId}, error: {@error}", requestId, error);
+            return View(new ErrorViewModel { RequestId = requestId });
         }
     }
 }

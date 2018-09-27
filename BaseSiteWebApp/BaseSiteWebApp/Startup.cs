@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using BaseSiteWebApp.Models;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace BaseSiteWebApp
 {
@@ -34,7 +36,8 @@ namespace BaseSiteWebApp
             });
 
             services.AddMvc(options => options.MaxModelValidationErrors = 50)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);            
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            Log.Information($"Read configuration. Value for MyConnection: {_configuration.GetConnectionString("MyConnection")}");
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             services.Configure<MyOptions>(_configuration);
@@ -52,7 +55,7 @@ namespace BaseSiteWebApp
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+            app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();

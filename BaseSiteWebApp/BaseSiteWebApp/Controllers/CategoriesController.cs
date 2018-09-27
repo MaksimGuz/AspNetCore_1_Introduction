@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BaseSiteWebApp.Models;
+using Serilog;
 
 namespace BaseSiteWebApp.Controllers
 {
@@ -29,7 +30,8 @@ namespace BaseSiteWebApp.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                //return NotFound();
+                var a = id.Value; // just for generating exception
             }
 
             var categories = await _context.Categories
