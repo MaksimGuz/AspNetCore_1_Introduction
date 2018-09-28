@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BaseSiteWebApp.Models.Categories>
+﻿@model CategoriesIndexViewModel
 
 @{
     ViewData["Title"] = "Categories";
@@ -6,11 +6,8 @@
 
 <h2>Categories</h2>
 
-<p>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
-</p>
 <ul>
-@foreach (var item in Model)
+@foreach (var item in Model.Categories)
 {
     <li>@Html.DisplayFor(modelItem => item.CategoryName) - @Html.DisplayFor(modelItem => item.Description)</li>
 }

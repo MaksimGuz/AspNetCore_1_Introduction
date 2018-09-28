@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BaseSiteWebApp.Interfaces;
 using BaseSiteWebApp.Models;
+using BaseSiteWebApp.Repositories;
+using BaseSiteWebApp.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -43,7 +46,9 @@ namespace BaseSiteWebApp
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             _logger.LogInformation($"GET CONFIGURATION. MyConnection: {_configuration.GetConnectionString("MyConnection")}");
             services.Configure<MyOptions>(_configuration);
-            _logger.LogInformation(@"GET CONFIGURATION. MyOptions: {@options}", _configuration.Get<MyOptions>());            
+            _logger.LogInformation(@"GET CONFIGURATION. MyOptions: {@options}", _configuration.Get<MyOptions>());
+            services.AddTransient<ICategoriesService, CategoriesService>();
+            services.AddTransient<ICategoriesRepository, CategoriesRepository>();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,22 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BaseSiteWebApp.Models;
+using BaseSiteWebApp.Interfaces;
 
 namespace BaseSiteWebApp.Controllers
 {
     public class CategoriesController : Controller
-    {
-        private readonly NorthwindContext _context;
+    {        
+        private ICategoriesService _categoriesService;
 
-        public CategoriesController(NorthwindContext context)
+        public CategoriesController(ICategoriesService categoriesService )
         {
-            _context = context;
+            _categoriesService = categoriesService;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            return View(await _categoriesService.GetCategoriesAsync());
         }
 
         // GET: Categories/Details/5
@@ -29,125 +30,16 @@ namespace BaseSiteWebApp.Controllers
         {
             if (id == null)
             {
-                //return NotFound();
-                var a = id.Value; // just for generating exception
+                throw new ArgumentNullException("id");                
             }
 
-            var categories = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var categories = await _categoriesService.GetByIdAsync(id.Value);
             if (categories == null)
             {
                 return NotFound();
             }
 
             return View(categories);
-        }
-
-        // GET: Categories/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Categories/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Description")] Categories categories)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(categories);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categories);
-        }
-
-        // GET: Categories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categories = await _context.Categories.FindAsync(id);
-            if (categories == null)
-            {
-                return NotFound();
-            }
-            return View(categories);
-        }
-
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Description")] Categories categories)
-        {
-            if (id != categories.CategoryId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(categories);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoriesExists(categories.CategoryId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(categories);
-        }
-
-        // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categories = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (categories == null)
-            {
-                return NotFound();
-            }
-
-            return View(categories);
-        }
-
-        // POST: Categories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var categories = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(categories);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategoriesExists(int id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
         }
     }
 }
