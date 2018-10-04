@@ -8,27 +8,27 @@ using Microsoft.EntityFrameworkCore;
 using BaseSiteWebApp.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using BaseSiteWebApp.Interfaces;
 
 namespace BaseSiteWebApp.Controllers
 {
     public class ProductsController : Controller
     {
-        private readonly NorthwindContext _context;
-        private readonly MyOptions _options;
+        private readonly IProductsService _productsService;
+        private readonly ICategoriesService _categoriesService;
+        private readonly ISuppliersService _suppliersService;
 
-        public ProductsController(NorthwindContext context, IOptions<MyOptions> optionsAccessor)
-        {
-            _context = context;
-            _options = optionsAccessor.Value;
+        public ProductsController(IProductsService productsService, ICategoriesService categoriesService, ISuppliersService suppliersService)
+        {                     
+            _productsService = productsService;
+            _categoriesService = categoriesService;
+            _suppliersService = suppliersService;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {            
-            var northwindContext = _context.Products.Include(p => p.Category).Include(p => p.Supplier).AsQueryable(); ;
-            if (_options.MaxProducts > 0)
-                northwindContext = northwindContext.Take(_options.MaxProducts);
-            return View(await northwindContext.ToListAsync());
+            return View(await _productsService.GetAllAsync());
         }
 
         // GET: Products/Details/5
@@ -39,10 +39,7 @@ namespace BaseSiteWebApp.Controllers
                 return NotFound();
             }
 
-            var products = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var products = await _productsService.GetByIdAsync(id.Value);
             if (products == null)
             {
                 return NotFound();
@@ -52,10 +49,10 @@ namespace BaseSiteWebApp.Controllers
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName");
+            ViewData["CategoryId"] = await _categoriesService.GetCategoriesSelectListAsync();
+            ViewData["SupplierId"] = await _suppliersService.GetSuppliersSelectListAsync();
             return View();
         }
 
@@ -68,12 +65,11 @@ namespace BaseSiteWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(products);
-                await _context.SaveChangesAsync();
+                await _productsService.Create(products);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", products.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", products.SupplierId);
+            ViewData["CategoryId"] = await _categoriesService.GetCategoriesSelectListAsync(products.CategoryId);
+            ViewData["SupplierId"] = await _suppliersService.GetSuppliersSelectListAsync(products.SupplierId);
             return View(products);
         }
 
@@ -85,13 +81,13 @@ namespace BaseSiteWebApp.Controllers
                 return NotFound();
             }
 
-            var products = await _context.Products.FindAsync(id);
+            var products = await _productsService.GetByIdAsync(id.Value);
             if (products == null)
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", products.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", products.SupplierId);
+            ViewData["CategoryId"] = await _categoriesService.GetCategoriesSelectListAsync(products.CategoryId);
+            ViewData["SupplierId"] = await _suppliersService.GetSuppliersSelectListAsync(products.SupplierId);
             return View(products);
         }
 
@@ -111,12 +107,11 @@ namespace BaseSiteWebApp.Controllers
             {
                 try
                 {
-                    _context.Update(products);
-                    await _context.SaveChangesAsync();
+                    await _productsService.Update(products);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductsExists(products.ProductId))
+                    if (await ProductsExists(products.ProductId) == false)
                     {
                         return NotFound();
                     }
@@ -127,8 +122,8 @@ namespace BaseSiteWebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", products.CategoryId);
-            ViewData["SupplierId"] = new SelectList(_context.Suppliers, "SupplierId", "CompanyName", products.SupplierId);
+            ViewData["CategoryId"] = await _categoriesService.GetCategoriesSelectListAsync(products.CategoryId);
+            ViewData["SupplierId"] = await _suppliersService.GetSuppliersSelectListAsync(products.SupplierId);
             return View(products);
         }
 
@@ -140,10 +135,7 @@ namespace BaseSiteWebApp.Controllers
                 return NotFound();
             }
 
-            var products = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var products = await _productsService.GetByIdAsync(id.Value);
             if (products == null)
             {
                 return NotFound();
@@ -157,15 +149,14 @@ namespace BaseSiteWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var products = await _context.Products.FindAsync(id);
-            _context.Products.Remove(products);
-            await _context.SaveChangesAsync();
+            var products = await _productsService.GetByIdAsync(id);
+            await _productsService.Delete(products);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductsExists(int id)
+        private async Task<bool> ProductsExists(int id)
         {
-            return _context.Products.Any(e => e.ProductId == id);
+            return await _productsService.GetByIdAsync(id) == null;
         }
     }
 }

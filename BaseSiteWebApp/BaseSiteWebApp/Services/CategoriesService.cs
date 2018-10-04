@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using BaseSiteWebApp.Interfaces;
 using BaseSiteWebApp.ViewModels;
 using BaseSiteWebApp.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BaseSiteWebApp.Services
 {
@@ -18,7 +19,7 @@ namespace BaseSiteWebApp.Services
             _categoriesRepository = categoriesRepository;
         }
 
-        public async Task<CategoriesIndexViewModel> GetCategoriesAsync()
+        public async Task<CategoriesIndexViewModel> GetAllAsync()
         {
             return new CategoriesIndexViewModel { Categories = await _categoriesRepository.GetAllAsync() };
         }
@@ -26,6 +27,11 @@ namespace BaseSiteWebApp.Services
         public async Task<Categories> GetByIdAsync(int id)
         {
             return await _categoriesRepository.GetByIdAsync(id);
+        }
+
+        public async Task<SelectList> GetCategoriesSelectListAsync(int? id = null)
+        {
+            return new SelectList(await _categoriesRepository.GetAllAsync(), "CategoryId", "CategoryName", id);
         }
     }
 }

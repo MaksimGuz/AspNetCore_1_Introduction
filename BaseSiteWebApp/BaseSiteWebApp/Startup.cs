@@ -48,7 +48,11 @@ namespace BaseSiteWebApp
             services.Configure<MyOptions>(_configuration);
             _logger.LogInformation(@"GET CONFIGURATION. MyOptions: {@options}", _configuration.Get<MyOptions>());
             services.AddTransient<ICategoriesService, CategoriesService>();
-            services.AddTransient<ICategoriesRepository, CategoriesRepository>();            
+            services.AddTransient<ICategoriesRepository, CategoriesRepository>();
+            services.AddTransient<IProductsService, ProductsService>();
+            services.AddTransient<IProductsRepository, ProductsRepository>();
+            services.AddTransient<ISuppliersRepository, SuppliersRepository>();
+            services.AddTransient<ISuppliersService, SuppliersService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

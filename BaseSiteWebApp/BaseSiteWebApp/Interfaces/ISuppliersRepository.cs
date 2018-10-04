@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BaseSiteWebApp.Interfaces
 {
-    public interface IProductsRepository : IRepositoryAsync<Products>
-    {        
+    public interface ISuppliersRepository : IRepositoryAsync<Suppliers>
+    {
     }
 }

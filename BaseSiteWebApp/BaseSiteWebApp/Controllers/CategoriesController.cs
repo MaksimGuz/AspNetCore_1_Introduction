@@ -22,7 +22,7 @@ namespace BaseSiteWebApp.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _categoriesService.GetCategoriesAsync());
+            return View(await _categoriesService.GetAllAsync());
         }
 
         // GET: Categories/Details/5
@@ -30,7 +30,7 @@ namespace BaseSiteWebApp.Controllers
         {
             if (id == null)
             {
-                throw new ArgumentNullException("id");                
+                throw new ArgumentNullException("id");
             }
 
             var categories = await _categoriesService.GetByIdAsync(id.Value);

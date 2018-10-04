@@ -1,5 +1,6 @@
 ﻿using BaseSiteWebApp.Models;
 using BaseSiteWebApp.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace BaseSiteWebApp.Interfaces
 {
     public interface ICategoriesService
     {
-        Task<CategoriesIndexViewModel> GetCategoriesAsync();
+        Task<CategoriesIndexViewModel> GetAllAsync();
         Task<Categories> GetByIdAsync(int id);
+        Task<SelectList> GetCategoriesSelectListAsync(int? id = null);
     }
 }
