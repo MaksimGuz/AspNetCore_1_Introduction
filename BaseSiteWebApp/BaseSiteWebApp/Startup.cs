@@ -56,8 +56,11 @@ namespace BaseSiteWebApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
         {
+            applicationLifetime.ApplicationStarted.Register(OnApplicationStarted);
+            applicationLifetime.ApplicationStopping.Register(OnApplicationStopping);
+            applicationLifetime.ApplicationStopped.Register(OnApplicationStopped);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -78,6 +81,21 @@ namespace BaseSiteWebApp
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        protected void OnApplicationStarted()
+        {
+            _logger.LogInformation($"Application has been started from {AppDomain.CurrentDomain.BaseDirectory} folder");
+        }
+
+        protected void OnApplicationStopping()
+        {
+            _logger.LogInformation($"Application is stopping");
+        }
+
+        protected void OnApplicationStopped()
+        {
+            _logger.LogInformation($"Application has been stopped");
         }
     }
 }
