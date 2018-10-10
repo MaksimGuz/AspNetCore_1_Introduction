@@ -19,7 +19,13 @@ namespace XUnitTestProject
         {
             // Arrange
             var mockService = new Mock<ICategoriesService>();
-            mockService.Setup(srv => srv.GetAllAsync()).ReturnsAsync(GetTestCategories());
+            mockService.Setup(srv => srv.GetAllAsync()).ReturnsAsync(new CategoriesIndexViewModel
+            {
+                Categories = new List<Categories>() {
+                    new Categories() { CategoryId = 1 },
+                    new Categories() { CategoryId = 2 }
+                }
+            });
             var controller = new CategoriesController(mockService.Object);
 
             // Act
@@ -33,11 +39,28 @@ namespace XUnitTestProject
         }
 
         [Fact]
+        public async Task Index_ReturnsAViewResult_WithAnEmptyListOfCategories()
+        {
+            // Arrange
+            var mockService = new Mock<ICategoriesService>();
+            mockService.Setup(srv => srv.GetAllAsync()).ReturnsAsync(new CategoriesIndexViewModel());
+            var controller = new CategoriesController(mockService.Object);
+
+            // Act
+            var result = await controller.Index();
+
+            // Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<CategoriesIndexViewModel>(viewResult.ViewData.Model);
+            Assert.Null(model.Categories);            
+        }
+
+        [Fact]
         public async Task Details_ThrowsException_WithNullId()
         {
             // Arrange
             var mockService = new Mock<ICategoriesService>();
-            mockService.Setup(srv => srv.GetAllAsync()).ReturnsAsync(GetTestCategories());
+            mockService.Setup(srv => srv.GetByIdAsync(1)).ReturnsAsync(new Categories() { CategoryId = 1 });
             var controller = new CategoriesController(mockService.Object);
 
             // Act
@@ -64,10 +87,10 @@ namespace XUnitTestProject
         }
 
         [Fact]
-        public async Task Details__ReturnsHttpNotFound_ForInvalidId()
+        public async Task Details_ReturnsHttpNotFound_ForInvalidId()
         {
-            int id = 2;
             // Arrange
+            int id = 2;
             var mockService = new Mock<ICategoriesService>();
             mockService.Setup(srv => srv.GetByIdAsync(1)).ReturnsAsync(new Categories() { CategoryId = 1 });
             var controller = new CategoriesController(mockService.Object);
@@ -77,16 +100,6 @@ namespace XUnitTestProject
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
-        }
-
-        private CategoriesIndexViewModel GetTestCategories()
-        {
-            return new CategoriesIndexViewModel {
-                Categories = new List<Categories>() {
-                    new Categories() { CategoryId = 1 },
-                    new Categories() { CategoryId = 2 }
-                }
-            };
         }
     }
 }
