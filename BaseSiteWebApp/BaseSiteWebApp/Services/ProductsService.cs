@@ -13,9 +13,9 @@ namespace BaseSiteWebApp.Services
     public class ProductsService : IProductsService
     {
         private IProductsRepository _productsRepository;
-        private MyOptions _options;
+        private ProductOptions _options;
 
-        public ProductsService(IProductsRepository ProductsRepository, IOptions<MyOptions> optionsAccessor)
+        public ProductsService(IProductsRepository ProductsRepository, IOptions<ProductOptions> optionsAccessor)
         {
             _productsRepository = ProductsRepository;
             _options = optionsAccessor.Value;

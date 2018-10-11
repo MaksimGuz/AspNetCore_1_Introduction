@@ -1,6 +1,6 @@
 ﻿namespace BaseSiteWebApp.Models
 {
-    public class MyOptions
+    public class ProductOptions
     {
         public int MaxProducts { get; set; }
     }

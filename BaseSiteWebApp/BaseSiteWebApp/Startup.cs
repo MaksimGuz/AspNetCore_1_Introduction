@@ -44,8 +44,10 @@ namespace BaseSiteWebApp
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             _logger.LogInformation($"GET CONFIGURATION. MyConnection: {_configuration.GetConnectionString("MyConnection")}");
-            services.Configure<MyOptions>(_configuration);
-            _logger.LogInformation(@"GET CONFIGURATION. MyOptions: {@options}", _configuration.Get<MyOptions>());
+            services.Configure<ProductOptions>(_configuration.GetSection("ProductOptions"));
+            services.Configure<ImageCachingOptions>(_configuration.GetSection("ImageCachingOptions"));
+            _logger.LogInformation(@"GET CONFIGURATION. ProductOptions: {@options}", _configuration.GetSection("ProductOptions").Get<ProductOptions>());
+            _logger.LogInformation(@"GET CONFIGURATION. ImageCachingOptions: {@options}", _configuration.GetSection("ImageCachingOptions").Get<ImageCachingOptions>());
             services.AddTransient<ICategoriesService, CategoriesService>();
             services.AddTransient<ICategoriesRepository, CategoriesRepository>();
             services.AddTransient<IProductsService, ProductsService>();
