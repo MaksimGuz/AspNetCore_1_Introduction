@@ -39,7 +39,6 @@ namespace BaseSiteWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
             services.AddMvc(options => options.MaxModelValidationErrors = 50)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDbContext<NorthwindContext>(options => 
@@ -73,8 +72,7 @@ namespace BaseSiteWebApp
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
-
+            app.UseCookiePolicy();            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

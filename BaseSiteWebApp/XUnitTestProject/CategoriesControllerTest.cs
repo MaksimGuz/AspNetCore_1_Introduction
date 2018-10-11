@@ -101,5 +101,49 @@ namespace XUnitTestProject
             // Assert
             Assert.IsType<NotFoundResult>(result);
         }
+        [Fact]
+        public async Task EditImage_ReturnsHttpNotFound_ForNullId()
+        {
+            // Arrange            
+            var mockService = new Mock<ICategoriesService>();
+            var controller = new CategoriesController(mockService.Object);
+
+            // Act
+            var result = await controller.EditImage(null);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+        [Fact]
+        public async Task EditImage_ReturnsHttpNotFound_ForInvalidId()
+        {
+            // Arrange
+            int id = 2;
+            var mockService = new Mock<ICategoriesService>();
+            mockService.Setup(srv => srv.GetCategoriesEditImageViewModelByIdAsync(1)).ReturnsAsync(new CategoriesEditImageViewModel() { CategoryId = 1 });
+            var controller = new CategoriesController(mockService.Object);
+
+            // Act
+            var result = await controller.EditImage(id);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task EditImage_ReturnsViewResult()
+        {
+            // Arrange
+            int id = 1;
+            var mockService = new Mock<ICategoriesService>();
+            mockService.Setup(srv => srv.GetCategoriesEditImageViewModelByIdAsync(id)).ReturnsAsync(new CategoriesEditImageViewModel() { CategoryId = id });
+            var controller = new CategoriesController(mockService.Object);
+
+            // Act
+            var result = await controller.EditImage(id);
+
+            //Assert
+            var viewResult = Assert.IsType<ViewResult>(result);
+        }
     }
 }

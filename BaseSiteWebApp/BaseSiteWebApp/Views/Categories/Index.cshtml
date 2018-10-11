@@ -6,9 +6,45 @@
 
 <h2>Categories</h2>
 
-<ul>
-@foreach (var item in Model.Categories)
+@if (Model.Categories.Any())
 {
-    <li>@Html.DisplayFor(modelItem => item.CategoryName) - @Html.DisplayFor(modelItem => item.Description)</li>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Categories.FirstOrDefault().CategoryName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Categories.FirstOrDefault().Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Categories.FirstOrDefault().Picture)
+                </th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Categories)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CategoryName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        <img src="@Url.Action("Image", "Categories", new { id = item.CategoryId })" />
+                    </td>
+                    <td>
+                        <a asp-controller="Categories" asp-action="Image" asp-route-id="@item.CategoryId" target="_blank">Image</a>
+                    </td>
+                    <td>
+                        <a asp-controller="Categories" asp-action="EditImage" asp-route-id="@item.CategoryId">Edit Image</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
-</ul>

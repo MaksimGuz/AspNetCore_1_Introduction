@@ -12,6 +12,9 @@ namespace BaseSiteWebApp.Interfaces
     {
         Task<CategoriesIndexViewModel> GetAllAsync();
         Task<Categories> GetByIdAsync(int id);
+        Task<CategoriesEditImageViewModel> GetCategoriesEditImageViewModelByIdAsync(int id);
         Task<SelectList> GetCategoriesSelectListAsync(int? id = null);
+        Task Update(Categories categories);
+        Task UpdateFromCategoriesEditImageViewModel(CategoriesEditImageViewModel model);
     }
 }
