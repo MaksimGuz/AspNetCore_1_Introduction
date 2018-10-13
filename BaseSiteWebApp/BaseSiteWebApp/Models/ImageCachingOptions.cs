@@ -11,5 +11,6 @@ namespace BaseSiteWebApp.Models
         public int MaxImages { get; set; }
         public int CacheExpirationInSeconds { get; set; }
         public int CacheCleanupDelayInSeconds { get; set; }
+        public int MaxDegreeOfParallelism { get; set; }
     }
 }

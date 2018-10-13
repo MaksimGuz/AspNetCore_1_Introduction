@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,7 +12,8 @@ namespace BaseSiteWebApp.Middleware
         private static object _listLock = new object();
         private static List<ImageCacheItemLock> _locks = new List<ImageCacheItemLock>();
         private readonly string _itemKey;
-        private object _lock;
+        //private object _lock;
+        private SemaphoreSlim _semaphore;
 
         public ImageCacheItemLock(string itemKey)
         {
@@ -19,18 +21,17 @@ namespace BaseSiteWebApp.Middleware
             {
                 _itemKey = itemKey;
                 var existing = _locks.Find(l => l._itemKey.Equals(itemKey));
-                _lock = existing == null ? new object() : existing._lock;
+                _semaphore = existing == null ? new SemaphoreSlim(1, 1) : existing._semaphore;
                 _locks.Add(this);
             }
-            Monitor.Enter(_lock);
+            _semaphore.Wait();
         }
 
         public string ItemKey { get { return _itemKey; } }
 
         public void Dispose()
         {
-            if (Monitor.IsEntered(_lock))
-                Monitor.Exit(_lock);
+            _semaphore.Release();
 
             lock (_listLock)
             {
