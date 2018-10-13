@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BaseSiteWebApp.Interfaces;
+using BaseSiteWebApp.Middleware;
 using BaseSiteWebApp.Models;
 using BaseSiteWebApp.Repositories;
 using BaseSiteWebApp.Services;
@@ -74,7 +75,8 @@ namespace BaseSiteWebApp
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();            
+            app.UseCookiePolicy();
+            app.UseImageCaching();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

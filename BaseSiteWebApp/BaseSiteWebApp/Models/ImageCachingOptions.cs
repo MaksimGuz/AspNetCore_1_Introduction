@@ -9,6 +9,7 @@ namespace BaseSiteWebApp.Models
     {
         public string CacheDirectoryPath { get; set; }
         public int MaxImages { get; set; }
-        public int ExpirationInMilliseconds { get; set; }
+        public int CacheExpirationInSeconds { get; set; }
+        public int CacheCleanupDelayInSeconds { get; set; }
     }
 }
