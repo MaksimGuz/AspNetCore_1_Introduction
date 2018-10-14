@@ -12,17 +12,18 @@ namespace BaseSiteWebApp.Models
         private readonly DateTime _expires;
         private readonly DateTime _expiresForDeleteFile;
         private string _contentType;
-        //private readonly Semaphore _semaphore;
+        private string _requestPath;
 
-        public CachedImageInfo(string filePath, string contentType, ImageCachingOptions options)
+        public CachedImageInfo(string filePath, string contentType, ImageCachingOptions options, string requestPath)
         {
             _filePath = filePath;
             _expires = DateTime.UtcNow.AddSeconds(options.CacheExpirationInSeconds);
             _expiresForDeleteFile = _expires.AddSeconds(options.CacheCleanupDelayInSeconds);
             _contentType = contentType;
-            //_semaphore = new Semaphore(1, 1, filePath);
+            _requestPath = requestPath;
         }
         public string FilePath { get { return _filePath; } }
+        public string RequestPath { get { return _requestPath; } }
         public DateTime Expires { get { return _expires; } }
         public DateTime ExpiresForDeleteFile { get { return _expiresForDeleteFile; } }
         public string ContentType
@@ -30,6 +31,5 @@ namespace BaseSiteWebApp.Models
             get { return _contentType; }
             set { _contentType = value; }
         }
-        //public Semaphore Semaphore { get { return _semaphore; } }
     }
 }
