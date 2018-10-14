@@ -42,9 +42,7 @@ namespace BaseSiteWebApp.Middleware
             var reader = new StreamReader(buffer);
             if (IsRequestToCategoriesImages(context))
             {
-                context.Response.Body = buffer;
-                LogImageCache(context.Request.Path.Value);
-                LogImageToDeleteCache(context.Request.Path.Value);
+                context.Response.Body = buffer;                
                 if (await FillResponseStreamFromCache(context, responseStream))
                     return;
             }
@@ -60,12 +58,8 @@ namespace BaseSiteWebApp.Middleware
                     buffer.Seek(0, SeekOrigin.Begin);
                     var responseBody = await reader.ReadToEndAsync();
 
-                    LogImageCache(context.Request.Path.Value);
-                    LogImageToDeleteCache(context.Request.Path.Value);
                     await AddImageToCache(context, buffer);
                     await CleanupCachedFiles(context.Request.Path.Value);
-                    LogImageCache(context.Request.Path.Value);
-                    LogImageToDeleteCache(context.Request.Path.Value);
 
                     // copy back our buffer to the response stream
                     buffer.Seek(0, SeekOrigin.Begin);
@@ -192,17 +186,6 @@ namespace BaseSiteWebApp.Middleware
                         _logger.LogInformation($"***** Unable to remove file {imageToDelete.FilePath} from filesToDelete. {requestPath}");
                 }
             }
-        }
-
-        private void LogImageCache(string param)
-        {
-            foreach (var item in cachedImages.ToList())
-                _logger.LogInformation(@"cachedImages item: {@item} from {@param}", item.Value, param);
-        }
-        private void LogImageToDeleteCache(string param)
-        {
-            foreach (var item in filesToDelete.ToList())
-                _logger.LogInformation(@"filesToDelete key: {@key} item value: {@value} from {param}", item.Key, item.Value, param);
         }
     }
 }
