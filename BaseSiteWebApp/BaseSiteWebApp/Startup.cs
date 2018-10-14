@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BaseSiteWebApp.Filters;
 using BaseSiteWebApp.Interfaces;
 using BaseSiteWebApp.Middleware;
 using BaseSiteWebApp.Models;
@@ -40,7 +41,9 @@ namespace BaseSiteWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            services.AddMvc(options => options.MaxModelValidationErrors = 50)
+            services.Configure<MyLoggingFilterOptions>(_configuration.GetSection("MyLoggingFilterOptions"));
+            _logger.LogInformation(@"GET CONFIGURATION. MyLoggingFilterOptions: {@options}", _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>());
+            services.AddMvc(options => { options.MaxModelValidationErrors = 50; options.Filters.Add(new MyLoggingFilter(_logger, _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>())); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
