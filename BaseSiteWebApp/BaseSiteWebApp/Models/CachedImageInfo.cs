@@ -24,7 +24,7 @@ namespace BaseSiteWebApp.Models
         }
         public string FilePath { get { return _filePath; } }
         public DateTime Expires { get { return _expires; } }
-        public bool CanBeDeleted() { return _expiresForDeleteFile < DateTime.UtcNow; }
+        public DateTime ExpiresForDeleteFile { get { return _expiresForDeleteFile; } }
         public string ContentType
         {
             get { return _contentType; }

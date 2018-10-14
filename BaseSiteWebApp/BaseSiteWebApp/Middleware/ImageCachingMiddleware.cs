@@ -1,16 +1,15 @@
-﻿using BaseSiteWebApp.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.IO;
-using Microsoft.EntityFrameworkCore.Internal;
 using System.Globalization;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using BaseSiteWebApp.Models;
+using AsyncUtilities;
 
 namespace BaseSiteWebApp.Middleware
 {
@@ -20,14 +19,18 @@ namespace BaseSiteWebApp.Middleware
         private readonly ImageCachingOptions _imageCachingOptions;
         private readonly ILogger<ImageCachingMiddleware> _logger;
         private ConcurrentDictionary<string, CachedImageInfo> cachedImages = new ConcurrentDictionary<string, CachedImageInfo>();
-        private ConcurrentDictionary<string, CachedImageInfo> filesToDelete = new ConcurrentDictionary<string, CachedImageInfo>();
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private ConcurrentDictionary<string, DateTime> filesToDelete = new ConcurrentDictionary<string, DateTime>();
+        private static SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
         private bool imageDirectoryExists = false;
+        //private readonly string imageCachingLockKey = typeof(ImageCachingMiddleware).FullName;
+        private readonly StripedAsyncLock<string> _lock = null;
+        private readonly object _lockObject = new object();
 
         public ImageCachingMiddleware(RequestDelegate next, IOptions<ImageCachingOptions> optionsAccessor, ILogger<ImageCachingMiddleware> logger)
         {
             _next = next;
             _imageCachingOptions = optionsAccessor.Value;
+            _lock = new StripedAsyncLock<string>(stripes: _imageCachingOptions.MaxStripesForLockAsync);
             _logger = logger;
         }
 
@@ -47,7 +50,7 @@ namespace BaseSiteWebApp.Middleware
             }
 
             await _next(context);
-            _logger.LogInformation($"Image caching middleware finish. {context.Request.Path.Value}");
+            _logger.LogInformation($"Image caching middleware after next. {context.Request.Path.Value}");
 
             if (IsRequestToCategoriesImages(context))
             {
@@ -58,7 +61,7 @@ namespace BaseSiteWebApp.Middleware
                     var responseBody = await reader.ReadToEndAsync();
 
                     await AddImageToCache(context, buffer);
-                    ProcessFilesToDelete();
+                    CleanupCachedFiles();
 
                     // copy back our buffer to the response stream
                     buffer.Seek(0, SeekOrigin.Begin);
@@ -72,7 +75,8 @@ namespace BaseSiteWebApp.Middleware
                 {
                     context.Response.Body = responseStream;
                 }
-            }    
+            }
+            _logger.LogInformation($"Image caching middleware finish. {context.Request.Path.Value}");
         }
         private bool IsRequestToCategoriesImages(HttpContext context)
         {
@@ -80,19 +84,13 @@ namespace BaseSiteWebApp.Middleware
                 context.Request.Path.Value.StartsWith("/Categories/Image/");
         }
 
-        private CachedImageInfo GetCachedImage(string requestPath)
-        {
-            cachedImages.TryGetValue(requestPath, out CachedImageInfo image);
-            return image;
-        }
-
         private async Task<bool> FillResponseStreamFromCache(HttpContext context, Stream responseStream, string requestPath)
         {
-            if (cachedImages.TryGetValue(requestPath, out CachedImageInfo image))
+            using (await _lock.LockAsync(context.Request.Path.Value)) //using (new ImageCacheItemLock(image.FilePath)) //using(await _lock.UseWaitAsync())
             {
-                if (image.Expires > DateTime.UtcNow)
+                if (cachedImages.TryGetValue(requestPath, out CachedImageInfo image))
                 {
-                    using (new ImageCacheItemLock(image.FilePath)) //using(await _lock.UseWaitAsync())
+                    if (image.Expires > DateTime.UtcNow)
                     {
                         _logger.LogInformation($"------START GETTING IMAGE FROM CACHE. {context.Request.Path.Value}");
                         context.Response.ContentType = image.ContentType;
@@ -102,9 +100,8 @@ namespace BaseSiteWebApp.Middleware
                         {
                             await fileStream.CopyToAsync(responseStream);
                         }
-                        _logger.LogInformation($"Image from cache for request {context.Request.Path.Value}");
                         context.Response.Body = responseStream;
-                        _logger.LogInformation($"------STOP  GETTING IMAGE FROM CACHE. {context.Request.Path.Value}");
+                        _logger.LogInformation($"------STOP  GETTING IMAGE FROM CACHE. {context.Request.Path.Value} from file {image.FilePath}");
                         return true;
                     }
                 }
@@ -114,32 +111,42 @@ namespace BaseSiteWebApp.Middleware
 
         private async Task AddImageToCache(HttpContext context, Stream buffer)
         {
-            using (await _lock.UseWaitAsync())
-            {
+            lock(_lockObject)// using (await _semaphoreSlim.UseWaitAsync()) //using (await _lock.LockAsync(imageCachingLockKey))
+            { // remove expired items from cache
+                _logger.LogInformation($"------START CLEAN UP. {context.Request.Path.Value}");
                 if (cachedImages.Any(f => f.Value.Expires < DateTime.UtcNow))
                 {
-                    Parallel.ForEach(cachedImages.Where(f => f.Value.Expires < DateTime.UtcNow).Select(x => x.Value),
-                        new ParallelOptions() { MaxDegreeOfParallelism = _imageCachingOptions.MaxDegreeOfParallelism },
-                        imageItem =>
+                    foreach(var path in cachedImages.Where(f => f.Value.Expires < DateTime.UtcNow).Select(x => x.Value.FilePath).ToList())
+                    {
+                        if (!cachedImages.TryRemove(context.Request.Path.Value, out CachedImageInfo imageOut))
+                            _logger.LogInformation($"***** file {path} was not removed from cachedImages for request {context.Request.Path.Value}");
+                        else
                         {
-                            filesToDelete.TryAdd(imageItem.FilePath, imageItem);
-                            cachedImages.TryRemove(context.Request.Path, out CachedImageInfo imageOut);
-                        });
+                            _logger.LogInformation($"***** file {path} was succesfully removed from cachedImages for request {context.Request.Path.Value}");
+                            if (!filesToDelete.TryAdd(path, imageOut.ExpiresForDeleteFile))
+                                _logger.LogInformation($"***** file {path} was not added to filesToDelete for request {context.Request.Path.Value}");
+                            else
+                                _logger.LogInformation($"***** file {path} was succesfully added to filesToDelete for request {context.Request.Path.Value}");
+                        }
+
+                    }                    
                 }
+                _logger.LogInformation($"------STOP CLEAN UP. {context.Request.Path.Value}");
             }
             if (cachedImages.Count() == _imageCachingOptions.MaxImages)
-                return;
+                return; // cache is full
 
-            if (!cachedImages.TryGetValue(context.Request.Path, out CachedImageInfo image))
+            if (!cachedImages.TryGetValue(context.Request.Path.Value, out CachedImageInfo image))
             {
                 string filePath = $"{_imageCachingOptions.CacheDirectoryPath}{context.Request.Path.Value.Replace("/", "")}{DateTime.UtcNow.ToString("_yyyy_mm_dd_hh_mm", CultureInfo.InvariantCulture)}.bmp";
-                using (new ImageCacheItemLock(filePath)) //using(await _lock.UseWaitAsync())
+                using (await _lock.LockAsync(context.Request.Path.Value)) //using (new ImageCacheItemLock(filePath)) //using(await _lock.UseWaitAsync())
                 {
                     _logger.LogInformation($"------START ADDING IMAGE TO CACHE. {context.Request.Path.Value}");
                     EnsureDestinationFolderExist(_imageCachingOptions.CacheDirectoryPath);
-                    await WriteBodyToDisk(buffer, filePath);
+                    await WriteResponseBodyToDisk(buffer, filePath);
                     _logger.LogInformation($"Image {filePath} saved to disk. {context.Request.Path.Value}");
-                    cachedImages.TryAdd(context.Request.Path, new CachedImageInfo(filePath, context.Response.ContentType, _imageCachingOptions));
+                    if (!cachedImages.TryAdd(context.Request.Path.Value, new CachedImageInfo(filePath, context.Response.ContentType, _imageCachingOptions)))
+                        _logger.LogInformation($"***** file {filePath} were not added to cachedImages");
                     _logger.LogInformation($"------STOP  ADDING IMAGE TO CACHE. {context.Request.Path.Value}");
                 }
             }
@@ -155,7 +162,7 @@ namespace BaseSiteWebApp.Middleware
             }
         }
 
-        private async Task WriteBodyToDisk(Stream buffer, string destinationFile)
+        private async Task WriteResponseBodyToDisk(Stream buffer, string destinationFile)
         {
             using (FileStream fs = new FileStream(destinationFile, FileMode.Create))
             {
@@ -164,30 +171,29 @@ namespace BaseSiteWebApp.Middleware
             }
         }
 
-        private void ProcessFilesToDelete()
+        private void CleanupCachedFiles()
         {
-            if (!filesToDelete.Any(f => f.Value.CanBeDeleted()))
-                return;
-            Parallel.ForEach(filesToDelete.Where(f => f.Value.CanBeDeleted()).Select(x=> x.Key),
-                new ParallelOptions() { MaxDegreeOfParallelism = _imageCachingOptions.MaxDegreeOfParallelism },
-                filePath =>
-                {
-                    using (new ImageCacheItemLock(filePath))
+            lock (_lockObject) //using (await _semaphoreSlim.UseWaitAsync()) //using (await _lock.LockAsync(imageCachingLockKey))
+            {
+                if (!filesToDelete.Any(f => f.Value < DateTime.UtcNow))
+                    return;
+                foreach (var filePath in filesToDelete.Where(f => f.Value < DateTime.UtcNow).Select(x => x.Key).ToList())
+                { // delete expired file from disc
+                    try
                     {
-                        // delete expired file from disc
-                        try
-                        {
-                            if (File.Exists(filePath))
-                                File.Delete(filePath);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "UNABLE TO DELETE FILE");
-                            throw ex;
-                        }
+                        if (File.Exists(filePath))
+                            File.Delete(filePath);
+                        _logger.LogInformation($"file {filePath} has been deleted");
                     }
-                    filesToDelete.TryRemove(filePath, out CachedImageInfo image);
-                });
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"***** Unable to delete file {filePath}");
+                        throw ex;
+                    }
+                    if (!filesToDelete.TryRemove(filePath, out DateTime outDate))
+                        _logger.LogInformation($"***** Unable to remove file {filePath} from filesToDelete");
+                }
+            }
         }
     }
 }
