@@ -21,14 +21,14 @@ namespace BaseSiteWebApp.Middleware
         private ConcurrentDictionary<string, CachedImageInfo> cachedImages = new ConcurrentDictionary<string, CachedImageInfo>();
         private ConcurrentDictionary<string, CachedImageInfo> filesToDelete = new ConcurrentDictionary<string, CachedImageInfo>();
         private bool imageDirectoryExists = false;
-        private readonly StripedAsyncLock<string> _lock = null;
+        //private readonly StripedAsyncLock<string> _lock = null;
         //private static SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         public ImageCachingMiddleware(RequestDelegate next, IOptions<ImageCachingOptions> optionsAccessor, ILogger<ImageCachingMiddleware> logger)
         {
             _next = next;
             _imageCachingOptions = optionsAccessor.Value;
-            _lock = new StripedAsyncLock<string>(stripes: _imageCachingOptions.MaxStripesForLockAsync);
+            //_lock = new StripedAsyncLock<string>(stripes: _imageCachingOptions.MaxStripesForLockAsync);
             _logger = logger;
         }
 
@@ -84,7 +84,7 @@ namespace BaseSiteWebApp.Middleware
 
         private async Task<bool> FillResponseStreamFromCache(HttpContext context, Stream responseStream)
         {
-            using (await _lock.LockAsync(context.Request.Path.Value)) //using (new ImageCacheItemLock(image.FilePath)) //using(await _lock.UseWaitAsync())
+            //using (await _lock.LockAsync(context.Request.Path.Value)) //using (new ImageCacheItemLock(image.FilePath)) //using(await _lock.UseWaitAsync())
             {
                 if (cachedImages.TryGetValue(context.Request.Path.Value, out CachedImageInfo image))
                 {
@@ -94,7 +94,7 @@ namespace BaseSiteWebApp.Middleware
                         context.Response.ContentType = image.ContentType;
                         if (!File.Exists(image.FilePath))
                             return false;
-                        using (var fileStream = new FileStream(image.FilePath, FileMode.Open))
+                        using (var fileStream = new FileStream(image.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         {
                             await fileStream.CopyToAsync(responseStream);
                         }
@@ -109,21 +109,21 @@ namespace BaseSiteWebApp.Middleware
 
         private async Task AddImageToCache(HttpContext context, Stream buffer)
         {
-            using (await _lock.LockAsync(context.Request.Path.Value))
+            //using (await _lock.LockAsync(context.Request.Path.Value))
             {
                 if (cachedImages.TryGetValue(context.Request.Path.Value, out CachedImageInfo imgBefore))
                 {
                     if (imgBefore.Expires < DateTime.UtcNow)
                     {
                         if (!cachedImages.TryRemove(context.Request.Path.Value, out CachedImageInfo imageOut))
-                            _logger.LogInformation($"***** file {imgBefore.FilePath} was not removed from cachedImages for request {context.Request.Path.Value}");
+                            _logger.LogInformation($"***** file {imgBefore.FilePath} has been succesfully removed from cachedImages for request {context.Request.Path.Value}");
                         else
                         {
-                            _logger.LogInformation($"***** file {imgBefore.FilePath} was succesfully removed from cachedImages for request {context.Request.Path.Value}");
+                            _logger.LogInformation($"***** file {imgBefore.FilePath} was NOT succesfully removed from cachedImages for request {context.Request.Path.Value}");
                             if (!filesToDelete.TryAdd(imgBefore.FilePath, imageOut))
-                                _logger.LogInformation($"***** file {imgBefore.FilePath} was not added to filesToDelete for request {context.Request.Path.Value}");
+                                _logger.LogInformation($"***** file {imgBefore.FilePath} was NOT added to filesToDelete for request {context.Request.Path.Value}");
                             else
-                                _logger.LogInformation($"***** file {imgBefore.FilePath} was succesfully added to filesToDelete for request {context.Request.Path.Value}");
+                                _logger.LogInformation($"***** file {imgBefore.FilePath} has been succesfully added to filesToDelete for request {context.Request.Path.Value}");
                         }
                     }
                 }
@@ -136,9 +136,9 @@ namespace BaseSiteWebApp.Middleware
                     _logger.LogInformation($"------START ADDING IMAGE TO CACHE. {context.Request.Path.Value}");
                     EnsureDestinationFolderExist(_imageCachingOptions.CacheDirectoryPath);
                     await WriteResponseBodyToDisk(buffer, filePath);
-                    _logger.LogInformation($"Image {filePath} saved to disk. {context.Request.Path.Value}");
+                    _logger.LogInformation($"Image {filePath} has been saved to disk. {context.Request.Path.Value}");
                     if (!cachedImages.TryAdd(context.Request.Path.Value, new CachedImageInfo(filePath, context.Response.ContentType, _imageCachingOptions, context.Request.Path.Value)))
-                        _logger.LogInformation($"***** file {filePath} were not added to cachedImages");
+                        _logger.LogInformation($"***** file {filePath} was not added to cachedImages");
                     _logger.LogInformation($"------STOP  ADDING IMAGE TO CACHE. {context.Request.Path.Value}");
                 }
             }
@@ -165,7 +165,7 @@ namespace BaseSiteWebApp.Middleware
 
         private async Task CleanupCachedFiles(string requestPath)
         {
-            using (await _lock.LockAsync(requestPath))
+            //using (await _lock.LockAsync(requestPath))
             {
                 if (!filesToDelete.Any(f => f.Value.RequestPath == requestPath && f.Value.ExpiresForDeleteFile < DateTime.UtcNow))
                     return;
