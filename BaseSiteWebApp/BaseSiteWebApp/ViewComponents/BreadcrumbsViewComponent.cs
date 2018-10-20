@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace BaseSiteWebApp.ViewComponents
 {
     public class BreadcrumbsViewComponent : ViewComponent
     {
+        private ILogger<BreadcrumbsViewComponent> _logger;
+        public BreadcrumbsViewComponent(ILogger<BreadcrumbsViewComponent> logger)
+        {
+            _logger = logger;
+        }
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var items = GetItems();
@@ -29,7 +35,7 @@ namespace BaseSiteWebApp.ViewComponents
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Error with get items in BreadcrumbsViewComponent.");
             }
             return result;
         }

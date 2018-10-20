@@ -83,12 +83,12 @@ namespace BaseSiteWebApp
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                   name: "image",
+                   template: "images/{id}",
+                   defaults: new { controller = "Categories", action = "Image" });
                 routes.MapRoute(
-                    name: "image",
-                    template: "images/{id}",
-                    defaults: new { controller = "Categories", action = "Image" });
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");               
             });
         }
 

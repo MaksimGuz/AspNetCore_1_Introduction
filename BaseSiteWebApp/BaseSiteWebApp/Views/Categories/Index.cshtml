@@ -35,13 +35,17 @@
                         @Html.DisplayFor(modelItem => item.Description)
                     </td>
                     <td>
-                        <img src="@Url.Action("Image", "Categories", new { id = item.CategoryId })" height="100" />
+                        <image id="@item.CategoryId"></image>
+                        <!--img src="Url.Action("Image", "Categories", new { id = item.CategoryId })" height="100" /-->
                     </td>
                     <td>
-                        <a asp-controller="Categories" asp-action="Image" asp-route-id="@item.CategoryId" target="_blank">Image</a>
+                        <!--a asp-controller="Categories" asp-action="Image" asp-route-id=" item.CategoryId" target="_blank">Image</ a-->
+                        @Html.NorthwindImageLink(item.CategoryId, "Image with Html Helper")
+                        ||
+                        <a northwind-id="@item.CategoryId">Image with Tag Helper</a>
                     </td>
                     <td>
-                        <a asp-controller="Categories" asp-action="EditImage" asp-route-id="@item.CategoryId">Edit Image</a>
+                        <a asp-controller="Categories" asp-action="EditImage" asp-route-id="@item.CategoryId">Upload Image</a>
                     </td>
                 </tr>
             }
