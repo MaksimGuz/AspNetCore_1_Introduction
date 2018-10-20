@@ -17,38 +17,6 @@
     </environment>
 </head>
 <body>
-    <header>
-        @if (IsSectionDefined("Header"))
-        {
-            RenderSection("Header");
-        }
-        else
-        {
-            <style>
-                .ms-siteLogo-defaultLogo {
-                    overflow: hidden;
-                    width: 1em;
-                    height: 1em;
-                    color: #ffffff;
-                    text-decoration: none;
-                    vertical-align: middle;
-                    font-size: 64px;
-                    transition: all .5s ease;
-                    display: inline-block;
-                }
-                .ms-siteLogo-actual img {
-                    display: block;
-                    max-height: 64px;
-                    max-width: 64px;
-                }
-            </style>
-        <a class="ms-siteLogo-defaultLogo" href="https://epam.sharepoint.com/sites/ASPNetCore" style="width: 64px; height: 64px; font-size: 64px;">
-            <div class="ms-siteLogo-actual">
-                <img src="/images/asp-net-core_logo.jpg" />
-            </div>
-        </a>
-        }
-    </header>
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -75,16 +43,9 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            @if (IsSectionDefined("Footer"))
-            {
-                RenderSection("Footer", required: false);
-            }
-            else
-            {
-                <p>&copy; 2018 - BaseSiteWebApp</p>
-            }
-        </footer>
+        <p>Second layout used for the home page, it doesn't contain header and footer.</p>
+        <p>Contain couple of additional visual elements (e.g. some picture): </p>
+        <img src="~/images/footer_sample_picture.png" />
     </div>
 
     <environment include="Development">
