@@ -22,7 +22,5 @@ namespace BaseSiteWebApp.ApiControllers
         {
             return Ok(await _categoriesService.GetAllAsync());
         }
-
-
     }
 }

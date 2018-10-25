@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +34,7 @@ namespace BaseSiteWebApp
         private ILogger<Startup> _logger;
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -43,9 +44,15 @@ namespace BaseSiteWebApp
             });
             services.Configure<MyLoggingFilterOptions>(_configuration.GetSection("MyLoggingFilterOptions"));
             _logger.LogInformation(@"GET CONFIGURATION. MyLoggingFilterOptions: {@options}", _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>());
+            //services.AddReact();
             services.AddMvc(options => { options.MaxModelValidationErrors = 50; options.Filters.Add(new MyLoggingFilter(_logger, _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>())); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            // In production, the React files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/build";
+            });
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             _logger.LogInformation($"GET CONFIGURATION. MyConnection: {_configuration.GetConnectionString("MyConnection")}");
@@ -59,6 +66,8 @@ namespace BaseSiteWebApp
             services.AddTransient<IProductsRepository, ProductsRepository>();
             services.AddTransient<ISuppliersRepository, SuppliersRepository>();
             services.AddTransient<ISuppliersService, SuppliersService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            return services.BuildServiceProvider();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,9 +87,12 @@ namespace BaseSiteWebApp
             }
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
+            //app.UseReact(config => { });
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseImageCaching();
+            //app.UseImageCaching();
+            app.UseSpaStaticFiles();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -89,7 +101,16 @@ namespace BaseSiteWebApp
                    defaults: new { controller = "Categories", action = "Image" });
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");               
+                    template: "{controller}/{action=Index}/{id?}");               
+            });
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
             });
         }
 
