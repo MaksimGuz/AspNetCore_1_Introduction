@@ -44,7 +44,6 @@ namespace BaseSiteWebApp
             });
             services.Configure<MyLoggingFilterOptions>(_configuration.GetSection("MyLoggingFilterOptions"));
             _logger.LogInformation(@"GET CONFIGURATION. MyLoggingFilterOptions: {@options}", _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>());
-            //services.AddReact();
             services.AddMvc(options => { options.MaxModelValidationErrors = 50; options.Filters.Add(new MyLoggingFilter(_logger, _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>())); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -87,11 +86,10 @@ namespace BaseSiteWebApp
             }
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
-            //app.UseReact(config => { });
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            //app.UseImageCaching();
+            app.UseImageCaching();
             app.UseSpaStaticFiles();
             app.UseMvc(routes =>
             {
