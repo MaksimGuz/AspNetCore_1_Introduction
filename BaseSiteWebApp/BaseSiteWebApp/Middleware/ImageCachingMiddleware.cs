@@ -59,7 +59,7 @@ namespace BaseSiteWebApp.Middleware
                     var responseBody = await reader.ReadToEndAsync();
 
                     await AddImageToCache(context, buffer);
-                    await CleanupCachedFiles(context.Request.Path.Value);
+                    CleanupCachedFiles(context.Request.Path.Value);
 
                     // copy back our buffer to the response stream
                     buffer.Seek(0, SeekOrigin.Begin);
@@ -163,7 +163,7 @@ namespace BaseSiteWebApp.Middleware
             }
         }
 
-        private async Task CleanupCachedFiles(string requestPath)
+        private void CleanupCachedFiles(string requestPath)
         {
             //using (await _lock.LockAsync(requestPath))
             {

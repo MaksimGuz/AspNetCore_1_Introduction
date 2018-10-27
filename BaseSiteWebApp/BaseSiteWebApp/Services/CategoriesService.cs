@@ -58,7 +58,8 @@ namespace BaseSiteWebApp.Services
             if (model == null || model.CategoryId == 0)
                 return;
             var categories = await GetByIdAsync(model.CategoryId);
-            categories.CategoryName = model.CategoryName;
+            if (!string.IsNullOrEmpty(model.CategoryName))
+                categories.CategoryName = model.CategoryName;
             if (model != null && model.PictureFile != null)
             {
                 using (var memoryStream = new MemoryStream())
