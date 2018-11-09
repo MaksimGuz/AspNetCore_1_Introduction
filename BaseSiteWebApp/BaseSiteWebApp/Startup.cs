@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace BaseSiteWebApp
 {
@@ -66,6 +67,12 @@ namespace BaseSiteWebApp
             services.AddTransient<ISuppliersRepository, SuppliersRepository>();
             services.AddTransient<ISuppliersService, SuppliersService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Mentoring API", Version = "v1" });
+            });
             return services.BuildServiceProvider();
         }
 
@@ -91,6 +98,15 @@ namespace BaseSiteWebApp
             app.UseCookiePolicy();
             app.UseImageCaching();
             app.UseSpaStaticFiles();
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mentoring API V1");
+            });
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
