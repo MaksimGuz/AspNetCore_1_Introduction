@@ -13,6 +13,6 @@ namespace BaseSiteWebApp.Interfaces
         Task<Products> GetByIdAsync(int id);
         Task Update(Products products);
         Task Create(Products products);
-        Task Delete(Products products);
+        Task Delete(int id);
     }
 }

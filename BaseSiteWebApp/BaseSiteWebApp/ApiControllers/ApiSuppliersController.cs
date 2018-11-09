@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 namespace BaseSiteWebApp.ApiControllers
 {
     [Route("api/[controller]")]
-    public class ProductsController : Controller
+    public class ApiSuppliersController : Controller
     {
-        private readonly IProductsService _productsService;
+        private ISuppliersService _suppliersService;
 
-        public ProductsController(IProductsService productsService)
+        public ApiSuppliersController(ISuppliersService suppliersService)
         {
-            _productsService = productsService;
+            _suppliersService = suppliersService;
         }
 
         [HttpGet("")]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _productsService.GetAllAsync());
+            return Ok(await _suppliersService.GetAllAsync());
         }
+
     }
 }

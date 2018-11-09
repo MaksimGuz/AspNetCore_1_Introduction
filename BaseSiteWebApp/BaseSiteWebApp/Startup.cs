@@ -96,10 +96,13 @@ namespace BaseSiteWebApp
                 routes.MapRoute(
                    name: "image",
                    template: "images/{id}",
-                   defaults: new { controller = "Categories", action = "Image" });
+                   defaults: new { controller = "Categories", action = "Image" });                
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller}/{action=Index}/{id?}");               
+                    template: "{controller}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "api",
+                    template: "api/{controller}/{action?}/{id?}");
             });
             app.UseSpa(spa =>
             {

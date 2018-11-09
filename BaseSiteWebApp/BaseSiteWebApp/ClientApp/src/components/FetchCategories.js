@@ -7,7 +7,7 @@ export class FetchCategories extends Component {
         super(props);
         this.state = { catlist: [], loading: true };
 
-        fetch('api/categories')
+        fetch('api/apicategories')
             .then(response => response.json())
             .then(data => {
                 this.setState({ catlist: data.categories, loading: false });
@@ -38,7 +38,7 @@ export class FetchCategories extends Component {
                         <td />
                         <td>{cat.categoryName}</td>
                         <td>{cat.description}</td>
-                        <td><a target="_blank" href={'/api/categoryimages/' + cat.categoryId}>Image</a></td>
+                        <td><a target="_blank" href={'/api/apicategoryimages/' + cat.categoryId}>Image</a></td>
                         <td><a className="action" onClick={(id) => this.handleEdit(cat.categoryId)}>Edit</a> </td>
                     </tr>
                 )}

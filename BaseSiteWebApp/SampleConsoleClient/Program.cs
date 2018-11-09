@@ -61,7 +61,7 @@ namespace SampleConsoleClient
         public static async Task<T> GetItemsAsync(HttpClient client, string controllerName)
         {
             T items = default(T);
-            HttpResponseMessage response = await client.GetAsync($"api/{controllerName}");
+            HttpResponseMessage response = await client.GetAsync($"api/api{controllerName}");
             if (response.IsSuccessStatusCode)
                 items = JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
             return items;

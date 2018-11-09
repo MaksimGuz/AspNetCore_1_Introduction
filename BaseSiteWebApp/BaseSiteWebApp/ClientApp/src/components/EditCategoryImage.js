@@ -10,10 +10,11 @@ export class EditCategoryImage extends Component {
         this.onFormSubmit = this.onFormSubmit.bind(this);
         this.onChangeFile = this.onChangeFile.bind(this);
         this.onChangeName = this.onChangeName.bind(this);
+        this.handleCancel = this.handleCancel.bind(this); 
     }
 
     componentDidMount() {
-        axios.get('api/categories/' + this.state.catId)
+        axios.get('api/apicategories/' + this.state.catId)
             .then(res => {
                 this.setState({
                     name: res.data.categoryName,
@@ -29,12 +30,17 @@ export class EditCategoryImage extends Component {
         formData.append('categoryName', this.state.name);
         formData.append('pictureFile', this.state.file);
         return axios.put(
-            'api/categories/' + this.state.catId,
+            'api/apicategories/' + this.state.catId,
             formData,
             { headers: { 'content-type': 'multipart/form-data' } }
         )
             .then(() => this.props.history.push('/fetchcategories'));
     }
+
+    handleCancel(e) {
+        e.preventDefault();
+        this.props.history.push("/fetchcategories");
+    } 
 
     onChangeFile(e) {
         this.setState({ file: e.target.files[0] });
@@ -56,7 +62,7 @@ export class EditCategoryImage extends Component {
                     <input type="file" id="pictureFile" name="pictureFile" onChange={this.onChangeFile} />
                 </div>
                 <div className="form-group">
-                    <input type="submit" value="Save" className="btn btn-primary" />
+                    <input type="submit" value="Save" className="btn btn-primary" />                    
                 </div>
             </form>
         );
@@ -69,7 +75,14 @@ export class EditCategoryImage extends Component {
         return (
             <div>
                 <h2>Category Image</h2>
-                {contents}
+                <div className="row">
+                    <div className="col-md-4">
+                        {contents}
+                    </div>
+                </div>
+                <div>
+                    <button className="btn" onClick={this.handleCancel}>Cancel</button>
+                </div>
             </div>
         );
     }

@@ -360,7 +360,7 @@ namespace XUnitTestProject
             var products = new Products { ProductId = productId };
             var mockService = new Mock<IProductsService>();
             mockService.Setup(srv => srv.GetByIdAsync(productId)).ReturnsAsync(new Products() { ProductId = productId });
-            mockService.Setup(srv => srv.Delete(products)).Returns(Task.CompletedTask);
+            mockService.Setup(srv => srv.Delete(productId)).Returns(Task.CompletedTask);
             var controller = new ProductsController(mockService.Object, null, null);
 
             // Act

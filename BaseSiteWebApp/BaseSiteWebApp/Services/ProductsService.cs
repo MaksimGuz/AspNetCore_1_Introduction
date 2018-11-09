@@ -23,7 +23,7 @@ namespace BaseSiteWebApp.Services
 
         public async Task<IEnumerable<Products>> GetAllAsync()
         {
-            return await _productsRepository.GetAllAsync(source => source.Include(p => p.Category).Include(p => p.Supplier), _options.MaxProducts);
+            return await _productsRepository.GetAllAsync(source => source.OrderBy(x=>x.ProductName).Include(p => p.Category).Include(p => p.Supplier), _options.MaxProducts);
         }
 
         public async Task<Products> GetByIdAsync(int id)
@@ -41,8 +41,9 @@ namespace BaseSiteWebApp.Services
             await _productsRepository.Create(products);
         }
 
-        public async Task Delete(Products products)
+        public async Task Delete(int id)
         {
+            var products = await GetByIdAsync(id);
             await _productsRepository.Delete(products);
         }
     }

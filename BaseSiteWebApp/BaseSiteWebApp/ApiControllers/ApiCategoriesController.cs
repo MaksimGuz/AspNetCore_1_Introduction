@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace BaseSiteWebApp.ApiControllers
 {
     [Route("api/[controller]")]
-    public class CategoriesController : Controller
+    public class ApiCategoriesController : Controller
     {
         private ICategoriesService _categoriesService;
-        private ILogger<CategoriesController> _logger;
+        private ILogger<ApiCategoriesController> _logger;
 
-        public CategoriesController(ICategoriesService categoriesService, ILogger<CategoriesController> logger)
+        public ApiCategoriesController(ICategoriesService categoriesService, ILogger<ApiCategoriesController> logger)
         {
             _categoriesService = categoriesService;
             _logger = logger;

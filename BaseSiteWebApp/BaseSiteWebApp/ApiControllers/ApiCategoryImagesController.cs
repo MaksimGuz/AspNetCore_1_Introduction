@@ -10,11 +10,11 @@ namespace BaseSiteWebApp.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryImagesController : Controller
+    public class ApiCategoryImagesController : Controller
     {
         private ICategoriesService _categoriesService;
 
-        public CategoryImagesController(ICategoriesService categoriesService)
+        public ApiCategoryImagesController(ICategoriesService categoriesService)
         {
             _categoriesService = categoriesService;
         }

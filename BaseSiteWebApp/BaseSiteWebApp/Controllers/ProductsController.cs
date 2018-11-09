@@ -148,9 +148,8 @@ namespace BaseSiteWebApp.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var products = await _productsService.GetByIdAsync(id);
-            await _productsService.Delete(products);
+        {            
+            await _productsService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
