@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,11 @@ namespace BaseSiteWebApp
             {
                 configuration.RootPath = "ClientApp/build";
             });
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    _configuration.GetConnectionString("IdentityConnection")));
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddDbContext<NorthwindContext>(options => 
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             _logger.LogInformation($"GET CONFIGURATION. MyConnection: {_configuration.GetConnectionString("MyConnection")}");
@@ -109,6 +115,7 @@ namespace BaseSiteWebApp
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mentoring API V1");
             });
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

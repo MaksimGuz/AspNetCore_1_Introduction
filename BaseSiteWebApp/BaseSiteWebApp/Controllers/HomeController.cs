@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BaseSiteWebApp.Interfaces;
 using BaseSiteWebApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -41,6 +42,7 @@ namespace BaseSiteWebApp.Controllers
             return View(new ErrorViewModel { RequestId = requestId });
         }
 
+        [Authorize]
         public async Task<IActionResult> TestSendEmail()
         {            
             await _emailSender.SendEmailAsync("maksim.guz@gmail.com", "test subject",
