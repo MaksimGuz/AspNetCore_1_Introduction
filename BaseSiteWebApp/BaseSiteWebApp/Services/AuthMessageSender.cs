@@ -2,11 +2,14 @@
 using BaseSiteWebApp.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BaseSiteWebApp.Services
@@ -23,33 +26,16 @@ namespace BaseSiteWebApp.Services
 
         private ILogger<AuthMessageSender> _logger;
 
-        public Task SendEmailAsync(string email, string subject, string message)
-        {
-
-            Execute(email, subject, message).Wait();
-            return Task.FromResult(0);
-        }
-
-        public async Task Execute(string email, string subject, string message)
+        public async Task SendEmailAsync(string email, string subject, string message)
         {
             try
-            {                
-                MailMessage mail = new MailMessage
-                {
-                    From = new MailAddress(_emailSettings.UsernameEmail, "Aspnetcore Mentee"),
-                    Subject = subject,
-                    Body = message,
-                    IsBodyHtml = true,
-                    Priority = MailPriority.High
-                };
-                mail.To.Add(new MailAddress(email));
-
-                using (SmtpClient smtp = new SmtpClient(_emailSettings.Host, _emailSettings.Port))
-                {                    
-                    smtp.EnableSsl = true;
-                    smtp.Credentials = new NetworkCredential(_emailSettings.UsernameEmail, _emailSettings.UsernamePassword);
-                    await smtp.SendMailAsync(mail);
-                }
+            {
+                var client = new SendGridClient(_emailSettings.ApiKey);
+                var from = new EmailAddress(_emailSettings.FromEmail, "Aspnetcore Mentee");
+                var to = new EmailAddress(email);
+                var plainTextContent = Regex.Replace(message, "<[^>]*>", "");
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, message);
+                await client.SendEmailAsync(msg);
             }
             catch (Exception ex)
             {

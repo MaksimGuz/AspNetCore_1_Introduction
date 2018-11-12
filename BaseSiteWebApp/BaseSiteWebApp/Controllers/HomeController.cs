@@ -42,10 +42,10 @@ namespace BaseSiteWebApp.Controllers
         }
 
         public async Task<IActionResult> TestSendEmail()
-        {
-            ViewData["Message"] = "Please check your inbox";
+        {            
             await _emailSender.SendEmailAsync("maksim.guz@gmail.com", "test subject",
-                        $"Enter email body here");
+                        $"<h1>email body</h1>");
+            ViewData["Message"] = "Email has been sent";
             return View();
         }
     }
