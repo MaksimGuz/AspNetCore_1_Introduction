@@ -1,5 +1,5 @@
-﻿using BaseSiteWebApp.Interfaces;
-using BaseSiteWebApp.Models;
+﻿using BaseSiteWebApp.Models;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid;

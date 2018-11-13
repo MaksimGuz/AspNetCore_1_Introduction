@@ -8,9 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using BaseSiteWebApp.Models;
 using BaseSiteWebApp.Interfaces;
 using BaseSiteWebApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace BaseSiteWebApp.Controllers
 {
+    [Authorize]
     public class CategoriesController : Controller
     {        
         private ICategoriesService _categoriesService;

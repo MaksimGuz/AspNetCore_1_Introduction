@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using BaseSiteWebApp.Interfaces;
 using BaseSiteWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -40,15 +40,6 @@ namespace BaseSiteWebApp.Controllers
             var error = this.HttpContext.Features.Get<IExceptionHandlerFeature>().Error;
             _logger.LogError(error, "RequestId:{requestId}, error: {@error}", requestId, error);
             return View(new ErrorViewModel { RequestId = requestId });
-        }
-
-        [Authorize]
-        public async Task<IActionResult> TestSendEmail()
-        {            
-            await _emailSender.SendEmailAsync("maksim.guz@gmail.com", "test subject",
-                        $"<h1>email body</h1>");
-            ViewData["Message"] = "Email has been sent";
-            return View();
-        }
+        }       
     }
 }

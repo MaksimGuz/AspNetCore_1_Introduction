@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaseSiteWebApp", "BaseSiteW
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XUnitTestProject", "XUnitTestProject\XUnitTestProject.csproj", "{B1D6DC1B-599D-4835-AE3E-0FBC4F7B52AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleConsoleClient", "SampleConsoleClient\SampleConsoleClient.csproj", "{B6F6B22B-0398-4288-BEB6-EDCDB4171A2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleClient", "SampleConsoleClient\SampleConsoleClient.csproj", "{B6F6B22B-0398-4288-BEB6-EDCDB4171A2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,11 +9,17 @@ using BaseSiteWebApp.Middleware;
 using BaseSiteWebApp.Models;
 using BaseSiteWebApp.Repositories;
 using BaseSiteWebApp.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +50,20 @@ namespace BaseSiteWebApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    _configuration.GetConnectionString("IdentityConnection")));
+            services.AddDefaultIdentity<IdentityUser>(config => 
+               {
+                   config.SignIn.RequireConfirmedEmail = false;
+               })
+            .AddEntityFrameworkStores<ApplicationDbContext>();            
+            services.AddAuthentication().AddOpenIdConnect(AzureADDefaults.AuthenticationScheme, "<EPAM>", opts =>
+            {
+                _configuration.GetSection("AzureAd").Bind(opts);
+                opts.Authority = $"{_configuration["AzureAd:Instance"]}{_configuration["AzureAd:TenantId"]}/v2.0/";
+                opts.Scope.Add("email");                
+            });
             services.Configure<EmailSettings>(_configuration.GetSection("EmailSettings"));
             services.Configure<MyLoggingFilterOptions>(_configuration.GetSection("MyLoggingFilterOptions"));
             _logger.LogInformation(@"GET CONFIGURATION. MyLoggingFilterOptions: {@options}", _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>());
@@ -55,12 +75,7 @@ namespace BaseSiteWebApp
             {
                 configuration.RootPath = "ClientApp/build";
             });
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    _configuration.GetConnectionString("IdentityConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddDbContext<NorthwindContext>(options => 
+            services.AddDbContext<NorthwindContext>(options =>
                 options.UseSqlServer(_configuration.GetConnectionString("MyConnection")));
             _logger.LogInformation($"GET CONFIGURATION. MyConnection: {_configuration.GetConnectionString("MyConnection")}");
             services.Configure<ProductOptions>(_configuration.GetSection("ProductOptions"));
@@ -90,6 +105,7 @@ namespace BaseSiteWebApp
             applicationLifetime.ApplicationStarted.Register(OnApplicationStarted);
             applicationLifetime.ApplicationStopping.Register(OnApplicationStopping);
             applicationLifetime.ApplicationStopped.Register(OnApplicationStopped);
+            app.UseAuthentication();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -115,13 +131,12 @@ namespace BaseSiteWebApp
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mentoring API V1");
             });
-            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                    name: "image",
                    template: "images/{id}",
-                   defaults: new { controller = "Categories", action = "Image" });                
+                   defaults: new { controller = "Categories", action = "Image" });
                 routes.MapRoute(
                     name: "default",
                     template: "{controller}/{action=Index}/{id?}");

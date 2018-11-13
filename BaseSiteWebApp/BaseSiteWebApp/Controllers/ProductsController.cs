@@ -9,9 +9,11 @@ using BaseSiteWebApp.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using BaseSiteWebApp.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BaseSiteWebApp.Controllers
 {
+    [Authorize]
     public class ProductsController : Controller
     {
         private readonly IProductsService _productsService;
