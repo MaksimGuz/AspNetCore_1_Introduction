@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using BaseSiteWebApp.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +15,10 @@ namespace BaseSiteWebApp.Controllers
 {
     public class HomeController : Controller
     {
-        private IEmailSender _emailSender;
         private ILogger<HomeController> _logger;
 
-        public HomeController(IEmailSender emailSender, ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger)
         {
-            _emailSender = emailSender;
             _logger = logger;
         }
         public IActionResult Index()

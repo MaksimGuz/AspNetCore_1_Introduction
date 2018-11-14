@@ -57,6 +57,7 @@ namespace BaseSiteWebApp
                {
                    config.SignIn.RequireConfirmedEmail = false;
                })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();            
             services.AddAuthentication().AddOpenIdConnect(AzureADDefaults.AuthenticationScheme, "<EPAM>", opts =>
             {
@@ -69,7 +70,7 @@ namespace BaseSiteWebApp
             _logger.LogInformation(@"GET CONFIGURATION. MyLoggingFilterOptions: {@options}", _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>());
             services.AddMvc(options => { options.MaxModelValidationErrors = 50; options.Filters.Add(new MyLoggingFilter(_logger, _configuration.GetSection("MyLoggingFilterOptions").Get<MyLoggingFilterOptions>())); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+                .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);            
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
@@ -90,6 +91,8 @@ namespace BaseSiteWebApp
             services.AddTransient<ISuppliersService, SuppliersService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IEmailSender, AuthMessageSender>();
+            services.AddTransient<IAdministratorService, AdministratorService>();
+            services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, UserClaimsPrincipalFactory<IdentityUser, IdentityRole>>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -106,6 +109,7 @@ namespace BaseSiteWebApp
             applicationLifetime.ApplicationStopping.Register(OnApplicationStopping);
             applicationLifetime.ApplicationStopped.Register(OnApplicationStopped);
             app.UseAuthentication();
+            app.UseInitAdmiRoleForTheFirstUser();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

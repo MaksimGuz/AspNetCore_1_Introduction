@@ -1,0 +1,23 @@
+﻿@model UserViewModel
+
+@{
+    ViewData["Title"] = "Confirm assignment";
+}
+
+<h2>@ViewData["Title"]</h2>
+<h3>Are you sure you want to assign Administrator role to user @Html.DisplayNameFor(model => model.UserName)?</h3>
+<div>
+    <div class="form-group">
+        <form asp-action="MakeAdmin">
+            <input type="hidden" asp-for="UserName" />
+            <input type="submit" value="MakeAdmin" class="btn btn-primary" />
+        </form>
+    </div>
+    <div>
+        <div class="form-group">
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+
+</div>
+
