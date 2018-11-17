@@ -28,7 +28,7 @@ namespace SampleConsoleClient
         {            
             HttpClient client = new HttpClient
             {
-                BaseAddress = new Uri("https://localhost:44354/")
+                BaseAddress = new Uri("https://localhost:44355/")
             };
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
