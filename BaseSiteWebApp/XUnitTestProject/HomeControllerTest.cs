@@ -18,7 +18,7 @@ namespace XUnitTestProject
         public void Index_ReturnsViewResult()
         {
             //Arrange
-            var controller = new HomeController(null, null);
+            var controller = new HomeController(null);
 
             //Act
             var result = controller.Index();
@@ -31,7 +31,7 @@ namespace XUnitTestProject
         public void Privacy_ReturnsViewResult()
         {
             //Arrange
-            var controller = new HomeController(null, null);
+            var controller = new HomeController(null);
 
             //Act
             var result = controller.Privacy();
@@ -45,7 +45,7 @@ namespace XUnitTestProject
         {
             //Arrange
             var mockLogger = Mock.Of<ILogger<HomeController>>();            
-            var controller = new HomeController(null, mockLogger);
+            var controller = new HomeController(mockLogger);
             controller.ControllerContext = new ControllerContext();
             controller.ControllerContext.HttpContext = new DefaultHttpContext();
             controller.HttpContext.Features.Set<IExceptionHandlerFeature>(new ExceptionHandlerFeature() { Error = new Exception() });

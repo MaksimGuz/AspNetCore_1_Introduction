@@ -14,10 +14,10 @@ namespace BaseSiteWebApp.ViewComponents
         {
             _logger = logger;
         }
-        public async Task<IViewComponentResult> InvokeAsync()
+        public Task<IViewComponentResult> InvokeAsync()
         {
             var items = GetItems();
-            return View(items);
+            return Task.FromResult(View(items) as IViewComponentResult);
         }
         private List<string> GetItems()
         {
