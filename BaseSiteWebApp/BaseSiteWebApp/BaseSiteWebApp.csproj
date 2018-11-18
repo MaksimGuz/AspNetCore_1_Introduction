@@ -6,9 +6,11 @@
     <TypeScriptJSXEmit>react</TypeScriptJSXEmit>
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <UserSecretsId>0a33eca9-5d8d-4d92-8113-66f07ff7c495</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Web.aspnetcoreWebSite - Web Deploy.config" />
     <Content Remove="Web.IIS.config" />
   </ItemGroup>
 
@@ -40,6 +42,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Include="Web.aspnetcoreWebSite - Web Deploy.config" />
     <None Include="Web.IIS.config" />
   </ItemGroup>
 

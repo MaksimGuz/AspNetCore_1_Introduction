@@ -8,8 +8,8 @@ namespace BaseSiteWebApp.Migrations.Northwind
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("alter table [Northwind].[dbo].[Categories] alter column [Picture] varbinary(max)");
-            migrationBuilder.Sql("update [Northwind].[dbo].[Categories] set Picture = CONVERT(varbinary(max), SUBSTRING(cast(Picture as varchar(max)), 79, DATALENGTH(Picture) - 79))");
+            migrationBuilder.Sql("alter table [dbo].[Categories] alter column [Picture] varbinary(max)");
+            migrationBuilder.Sql("update [dbo].[Categories] set Picture = CONVERT(varbinary(max), SUBSTRING(cast(Picture as varchar(max)), 79, DATALENGTH(Picture) - 79))");
         }
     }
 }

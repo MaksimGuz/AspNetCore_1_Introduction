@@ -1,7 +1,14 @@
 ﻿import React, { Component } from 'react';
+//import unregister from '../registerServiceWorker';
 
 export class Home extends Component {
-    displayName = Home.name
+    displayName = Home.name;
+
+    prepareForAspnetcore() {
+        //console.log("begin prepare");
+        //unregister();
+        //console.log("end prepare");
+    }
 
     render() {
         return (
@@ -13,8 +20,8 @@ export class Home extends Component {
                     <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
                     <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
                 </ul>
-                <br/>
-                <a href="/Home">Перейти к ASP.NET Core MVC</a>
+                <br />
+                <a href="/Home" onClick={() => { this.prepareForAspnetcore(); return true; }} >Перейти к ASP.NET Core MVC</a>
             </div>
         );
     }

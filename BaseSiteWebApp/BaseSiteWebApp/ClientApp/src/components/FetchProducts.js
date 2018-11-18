@@ -76,13 +76,15 @@ export class FetchProducts extends Component {
     render() {
         let contents = this.state.loading ?
             <p><em>Loading...</em></p> :
-            this.renderProductsTable(this.state.prodList);
-        return (
             <div>
-                <h2>Products</h2>
                 <p>
                     <a className="btn btn-primary" onClick={this.handleCreate}>Create New</a>
                 </p>
+                {this.renderProductsTable(this.state.prodList)}
+            </div>;
+        return (
+            <div>
+                <h2>Products</h2>
                 {contents}
             </div>
         );

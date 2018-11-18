@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XUnitTestProject", "XUnitTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleClient", "SampleConsoleClient\SampleConsoleClient.csproj", "{B6F6B22B-0398-4288-BEB6-EDCDB4171A2C}"
 EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "aspnetcoreRG", "aspnetcoreRG\aspnetcoreRG.deployproj", "{637F0C05-5913-4AA9-AE34-516C137A941D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B6F6B22B-0398-4288-BEB6-EDCDB4171A2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6F6B22B-0398-4288-BEB6-EDCDB4171A2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6F6B22B-0398-4288-BEB6-EDCDB4171A2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{637F0C05-5913-4AA9-AE34-516C137A941D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{637F0C05-5913-4AA9-AE34-516C137A941D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{637F0C05-5913-4AA9-AE34-516C137A941D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{637F0C05-5913-4AA9-AE34-516C137A941D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
