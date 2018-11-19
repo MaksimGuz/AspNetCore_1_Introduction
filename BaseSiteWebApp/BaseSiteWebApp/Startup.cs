@@ -63,7 +63,15 @@ namespace BaseSiteWebApp
             {
                 _configuration.GetSection("AzureAd").Bind(opts);
                 opts.Authority = $"{_configuration["AzureAd:Instance"]}{_configuration["AzureAd:TenantId"]}/v2.0/";
-                opts.Scope.Add("email");                
+                opts.Scope.Add("email");
+            });
+            services.ConfigureExternalCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+            });
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
             });
             services.Configure<EmailSettings>(_configuration.GetSection("EmailSettings"));
             services.Configure<MyLoggingFilterOptions>(_configuration.GetSection("MyLoggingFilterOptions"));
