@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -116,6 +117,10 @@ namespace BaseSiteWebApp
             applicationLifetime.ApplicationStarted.Register(OnApplicationStarted);
             applicationLifetime.ApplicationStopping.Register(OnApplicationStopping);
             applicationLifetime.ApplicationStopped.Register(OnApplicationStopped);
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
             app.UseAuthentication();
             app.UseInitAdmiRoleForTheFirstUser();
             if (env.IsDevelopment())
