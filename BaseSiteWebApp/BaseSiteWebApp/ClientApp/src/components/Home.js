@@ -14,6 +14,7 @@ export class Home extends Component {
         return (
             <div>
                 <h1>Home Page</h1>
+                <h1>Welcome to container on linux world!</h1>
                 <p>Welcome to the single-page application, built with:</p>
                 <ul>
                     <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
