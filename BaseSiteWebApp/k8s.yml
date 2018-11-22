@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aspnetcorev2
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aspnetcorev2
+  template:
+    metadata:
+      labels:
+        app: aspnetcorev2
+    spec:
+      containers:
+      - name: aspnetcorev2
+        image: maksimguz/aspnetcore:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aspnetcorev2
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: aspnetcorev2
