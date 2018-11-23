@@ -1,4 +1,4 @@
-###swagger-codegen
+### swagger-codegen
 https://stackoverflow.com/questions/21076179/pkix-path-building-failed-and-unable-to-find-valid-certification-path-to-requ
 keytool -import -alias example -keystore  "C:\Program Files (x86)\Java\jre1.8.0_191\lib\security\cacerts" -file certificate.cer
 
@@ -19,13 +19,13 @@ Get-AzureRmSubscription
 Set-AzureRmContext -SubscriptionId "guid id"
 .\Deploy-AzureResourceGroup.ps1 -ResourceGroupName "aspnetcoreMG" -ResourceGroupLocation "East US"
 
-###iOS issue with oidc logins
+### iOS issue with oidc logins
 https://github.com/aspnet/Security/issues/1864
 
-###apply migrations on prod
+### apply migrations on prod
 https://dotnetplusplus.com/2018/09/23/deploying-a-code-first-entity-framework-database-in-azure-devops/
 
-#docker development
+### docker development
 https://github.com/dotnet/dotnet-docker/blob/master/samples/aspnetapp/aspnetcore-docker-https-development.md
 
 docker stop $(docker ps -a -q)
