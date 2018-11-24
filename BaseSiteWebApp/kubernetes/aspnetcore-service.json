@@ -1,0 +1,22 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"aspnetcore",
+      "labels":{
+         "app":"aspnetcore"
+      }
+   },
+   "spec":{
+      "ports": [
+         {
+           "port":80,
+           "targetPort":"http-server"
+         }
+      ],
+      "selector":{
+         "app":"aspnetcore"
+      },
+      "type": "LoadBalancer"
+   }
+}

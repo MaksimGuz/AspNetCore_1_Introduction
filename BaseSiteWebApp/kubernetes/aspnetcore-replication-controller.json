@@ -1,0 +1,37 @@
+{
+   "kind":"ReplicationController",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"aspnetcore",
+      "labels":{
+         "app":"aspnetcore"
+      }
+   },
+   "spec":{
+      "replicas":2,
+      "selector":{
+         "app":"aspnetcore"
+      },
+      "template":{
+         "metadata":{
+            "labels":{
+               "app":"aspnetcore"
+            }
+         },
+         "spec":{
+            "containers":[
+               {
+                  "name":"aspnetcore",
+                  "image":"maksimguz/aspnetcore:latest",
+                  "ports":[
+                     {
+                        "name":"http-server",
+                        "containerPort":80
+                     }
+                  ]
+               }
+            ]
+         }
+      }
+   }
+}
